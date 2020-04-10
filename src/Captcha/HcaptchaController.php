@@ -105,14 +105,14 @@ class HcaptchaController extends AbstractController implements CaptchaInterface,
 //			$body = @file_get_contents('https://hcaptcha.com/siteverify?secret='.$secret.'&response='.$_POST['h-captcha-response'].'&remoteip='.$_SERVER['REMOTE_ADDR']);
 
 
-			$responseData = @json_decode($body, true);
+			$responseData = @json_decode($body);
 			if (!$responseData) {
 				$this->logger->alert(t('Error decoding hCaptcha response: %s', $body));
 
 				return false;
             }
 
-			if ($responseData->success) {
+			if ($responseData->success === true) {
 				return true;
 
 			}
