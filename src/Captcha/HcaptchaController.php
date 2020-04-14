@@ -70,20 +70,16 @@ class HcaptchaController extends AbstractController implements CaptchaInterface,
 		if (!empty($response)) {
 			$secret = $config->get('hcaptcha.secret', '');
 
-			$queryString = http_build_query(
-				[
+			$params = [
 					'secret' => $secret,
-					'remoteip' => $ip,
-					'response' => $response,
-				]
-			);
-
-			$verifyUrl = 'https://hcaptcha.com/siteverify?'.$queryString;
+					// optional 'remoteip' => $ip,
+					'response' => $response];
 
 			$httpClient = $this->app->make(HttpClient::class);
 			/* @var $httpClient \Concrete\Core\Http\Client\Client */
-			$httpClient->setUri($verifyUrl);
-			$httpClient->setMethod('GET');
+			$httpClient->setUri('https://hcaptcha.com/siteverify');
+			$httpClient->setMethod('POST');
+			$httpClient->setParameterPost($params);
 
 			try {
 				$response = $httpClient->send();
@@ -100,10 +96,6 @@ class HcaptchaController extends AbstractController implements CaptchaInterface,
 			}
 
 			$body = $response->getBody();
-
-// Old school, but as documented
-//			$body = @file_get_contents('https://hcaptcha.com/siteverify?secret='.$secret.'&response='.$_POST['h-captcha-response'].'&remoteip='.$_SERVER['REMOTE_ADDR']);
-
 
 			$responseData = @json_decode($body);
 			if (!$responseData) {
